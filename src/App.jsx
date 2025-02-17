@@ -1,33 +1,20 @@
-import React, { useEffect, useState } from 'react'
-import { BrowserRouter as Router, Routes, Route, useSearchParams } from 'react-router-dom'
-import Home from './Pages/Home'
-import AddJob from './Pages/AddJob'
-import EditJob from './Pages/EditJob'
-// import NavBar from './Components/NavBar'
-
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Home from "./Pages/Home";
+import AddJob from "./Components/AddJob";
+import JobForm from "./Components/JobForm";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  const[jobs,setJobs]=useState([])
-
-  useEffect(()=>{
-    fetch('')
-    .then((res)=>res.json())
-    .then((data)=>setJobs(data))
-    .catch((err)=>console.log(err));
-  },[]);
-
   return (
-    <>
-    {/* <NavBar /> */}
     <Router>
       <Routes>
-        <Route path='/' element={<Home jobs={jobs} setJobs={setJobs}/>} />
-        <Route path='/add' element={<AddJob jobs={jobs} setJobs={setJobs}/>} />
-        <Route path='/edit/:id' element={<EditJob jobs={jobs} setJobs={setJobs}/>} />
+        <Route path="/" element={<Home />} />
+        <Route path="/Add" element={<AddJob />} />
+        <Route path="/edit/:id" element={<JobForm />} />
       </Routes>
     </Router>
-    </>
-  )
+  );
 }
 
-export default App
+export default App;

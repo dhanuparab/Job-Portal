@@ -1,19 +1,27 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Form, Button, Container } from "react-bootstrap";
+import axios from "axios";
 
 const JobForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const isEditing = Boolean(id);
-  const [jobData, setJobData] = useState({ description: "", designation: "", salary: "", location: "" });
+  const [jobData, setJobData] = useState({
+    description: "",
+    designation: "",
+    salary: "",
+    location: "",
+    userId: 1,
+  });
 
   useEffect(() => {
-    if (isEditing) {
-      fetch(`http://localhost:5000/jobs/${id}`)
-        .then((res) => res.json())
-        .then((data) => setJobData(data));
+    if (id) {
+      axios
+        .get(`https://679d1c1e87618946e6546148.mockapi.io/api/portal/${id}`)
+        .then((res) => setJobData(res.data))
+        .catch((err) => console.error("Error fetching job details:", err));
     }
-  }, [id, isEditing]);
+  }, [id]);
 
   const handleChange = (e) => {
     setJobData({ ...jobData, [e.target.name]: e.target.value });
@@ -21,30 +29,65 @@ const JobForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEditing) {
-      await fetch(`https://679d1c1e87618946e6546148.mockapi.io/api/portal/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(jobData),
-      });
+
+    if (id) {
+      await axios.put(`https://679d1c1e87618946e6546148.mockapi.io/api/portal/${id}`, jobData);
     } else {
-      await fetch("https://679d1c1e87618946e6546148.mockapi.io/api/portal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...jobData, id: Date.now().toString() }),
-      });
+      await axios.post("https://679d1c1e87618946e6546148.mockapi.io/api/portal", jobData);
     }
+
     navigate("/");
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" name="description" placeholder="Description" value={jobData.description} onChange={handleChange} required />
-      <input type="text" name="designation" placeholder="Designation" value={jobData.designation} onChange={handleChange} required />
-      <input type="number" name="salary" placeholder="Salary" value={jobData.salary} onChange={handleChange} required />
-      <input type="text" name="location" placeholder="Location" value={jobData.location} onChange={handleChange} required />
-      <button type="submit">{isEditing ? "Update" : "Add"} Job</button>
-    </form>
+    <Container>
+      <h3 className="my-3 text-center">{id ? "Edit Job" : "Add New Job"}</h3>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group className="mb-3">
+          <Form.Label>Designation</Form.Label>
+          <Form.Control
+            type="text"
+            name="designation"
+            value={jobData.designation}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Description</Form.Label>
+          <Form.Control
+            type="text"
+            name="description"
+            value={jobData.description}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Salary</Form.Label>
+          <Form.Control
+            type="number"
+            name="salary"
+            value={jobData.salary}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Location</Form.Label>
+          <Form.Control
+            type="text"
+            name="location"
+            value={jobData.location}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+        <Button variant="success" type="submit">
+          {id ? "Update Job" : "Add Job"}
+        </Button>
+      </Form>
+    </Container>
   );
 };
 
